@@ -1,22 +1,16 @@
 import { Field } from '@base-ui/react/field';
 import { Tabs } from '@base-ui/react/tabs';
-import { createLinter, type LintResult } from 'open-design-tokens/linter';
-import { type ValidationResult, validateDtcg } from 'open-design-tokens/validator';
-import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { ExamplesPane } from '../components/examples-pane.js';
-import { IssueList, type Row } from '../components/issue-list.js';
+import { IssueList } from '../components/issue-list.js';
 import { JsonEditor } from '../components/json-editor.js';
 import { ScrollPanel } from '../components/scroll-panel.js';
 import { SiteHeader } from '../components/site-header.js';
 import { Toolbar } from '../components/toolbar.js';
 import { FULL_PROJECT_JSON } from '../examples.js';
-import { createPositionIndex } from '../lib/positions.js';
-
-/** Inputs above this size are refused before parsing. */
-const MAX_INPUT_BYTES = 2 * 1024 * 1024;
-
-const LINTER = createLinter({ extends: ['recommended'] });
+import { selectInEditor } from '../lib/select-in-editor.js';
+import { useTokenCheck } from '../lib/use-token-check.js';
 
 type PanelName = 'examples' | 'editor' | 'results';
 
@@ -48,54 +42,21 @@ function WorkspacePanel({ name, active, children }: WorkspacePanelProps) {
 
 export function PlaygroundPage() {
   const [source, setSource] = useState(FULL_PROJECT_JSON);
-  const [result, setResult] = useState<ValidationResult | null>(null);
-  const [lintResult, setLintResult] = useState<LintResult | null>(null);
   const [lintEnabled, setLintEnabled] = useState(false);
-  const [tooLarge, setTooLarge] = useState(false);
   const [activePanel, setActivePanel] = useState<PanelName>('editor');
   const editorRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    const handle = setTimeout(() => {
-      if (source.length > MAX_INPUT_BYTES) {
-        setTooLarge(true);
-        setResult(null);
-        setLintResult(null);
-        return;
-      }
-      setTooLarge(false);
-      if (lintEnabled) {
-        const r = LINTER.lint(source);
-        setLintResult(r);
-        setResult(r.validation);
-      } else {
-        setLintResult(null);
-        setResult(validateDtcg(source));
-      }
-    }, 150);
-    return () => clearTimeout(handle);
-  }, [source, lintEnabled]);
-
-  const positions = useMemo(() => createPositionIndex(source), [source]);
-
-  const rows: Row[] = useMemo(() => {
-    const out: Row[] = [];
-    for (const issue of result?.issues ?? []) out.push({ issue, source: 'validator' });
-    for (const issue of lintResult?.issues ?? []) out.push({ issue, source: 'linter' });
-    return out;
-  }, [result, lintResult]);
+  const { result, lintResult, tooLarge, positions, rows, errors, warnings, valid } = useTokenCheck(
+    source,
+    lintEnabled,
+  );
 
   const select = (offset: number, length: number) => {
     const el = editorRef.current;
     if (!el) return;
     // On narrow screens the editor may be on another tab, and can't take focus until shown.
     flushSync(() => setActivePanel('editor'));
-    el.focus();
-    el.setSelectionRange(offset, offset + length);
-    // Scroll the selection into view by measuring the line height.
-    const line = source.slice(0, offset).split('\n').length - 1;
-    const lineHeight = Number.parseFloat(getComputedStyle(el).lineHeight) || 20;
-    el.scrollTop = Math.max(0, line * lineHeight - el.clientHeight / 2);
+    selectInEditor(el, offset, length);
   };
 
   const loadExample = useCallback((json: string) => {
@@ -110,10 +71,6 @@ export function PlaygroundPage() {
       // Leave invalid JSON untouched; the result pane already shows the parse error.
     }
   };
-
-  const errors = (result?.errors.length ?? 0) + (lintResult?.errors.length ?? 0);
-  const warnings = (result?.warnings.length ?? 0) + (lintResult?.warnings.length ?? 0);
-  const valid = lintResult ? lintResult.valid : (result?.valid ?? true);
 
   return (
     <>

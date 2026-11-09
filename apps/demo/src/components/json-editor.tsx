@@ -13,6 +13,7 @@ interface Props {
   ref: Ref<HTMLTextAreaElement>;
   value: string;
   onChange(value: string): void;
+  placeholder?: string;
 }
 
 /**
@@ -20,7 +21,7 @@ interface Props {
  * handles typing, selection, and focus. Line wrapping is off so both layers
  * always break lines in the same place.
  */
-export function JsonEditor({ id, ref, value, onChange }: Props) {
+export function JsonEditor({ id, ref, value, onChange, placeholder }: Props) {
   const highlightRef = useRef<HTMLPreElement>(null);
 
   const syncScroll = (event: UIEvent<HTMLTextAreaElement>) => {
@@ -47,6 +48,7 @@ export function JsonEditor({ id, ref, value, onChange }: Props) {
             className="editor-input"
             spellCheck={false}
             wrap="off"
+            placeholder={placeholder}
             onScroll={syncScroll}
           />
         }

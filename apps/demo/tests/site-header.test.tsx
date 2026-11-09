@@ -19,6 +19,12 @@ describe('SiteHeader', () => {
     expect(screen.getByRole('link', { name: 'API' }).getAttribute('href')).toBe('/api/');
   });
 
+  it('lists Playground before Docs', () => {
+    render(<SiteHeader current="landing" />);
+    const labels = screen.getAllByRole('link').map((link) => link.textContent);
+    expect(labels.indexOf('Playground')).toBeLessThan(labels.indexOf('Docs'));
+  });
+
   it('marks only the current page', () => {
     render(<SiteHeader current="playground" />);
     const current = screen

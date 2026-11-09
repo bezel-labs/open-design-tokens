@@ -123,8 +123,7 @@ html:not(.fixed-page) .site-header {
 .site-header-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--size-3);
+  gap: var(--size-3) var(--size-6);
   padding: var(--size-1-5) var(--size-2);
 }
 @media (min-width: 700px) {
@@ -141,9 +140,12 @@ html:not(.fixed-page) .site-header {
   text-decoration: none;
   filter: drop-shadow(0 0 var(--size-1) color-mix(in oklab, var(--crt-pink) 45%, transparent));
 }
+.site-nav-area {
+  flex: 1;
+  min-width: 0;
+}
 .site-nav,
-.menu-list,
-.footer-links {
+.menu-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -151,6 +153,7 @@ html:not(.fixed-page) .site-header {
 .site-nav {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--size-1);
 }
 /* Phones get one Menu. From 700px its links sit in the bar, and from 1000px the version too. */
@@ -836,6 +839,7 @@ p.status-error {
   .area-trigger,
   .nav-link,
   .menu-link,
+  .live-sample,
   .button,
   .command-copy {
     min-height: var(--size-11);
@@ -848,79 +852,189 @@ p.status-error {
   }
 }
 
-/* Landing page */
-.landing-section {
-  /* A 1168px content width. The placeholder sizes in landing-page.tsx depend on it. */
-  max-width: calc(var(--size-96) * 3 + var(--size-12));
-  margin-inline: auto;
-  padding: var(--size-10) var(--size-4);
+/*
+ * Landing page: thin titled frames, as in the playground, with space between them.
+ *
+ * Vertical rhythm: every line height sits on the 4px grid of the size tokens, and
+ * every gap is one of these steps. The closer two things are related, the smaller
+ * the step between them.
+ */
+html:not(.fixed-page) {
+  --landing-width: calc(var(--size-96) * 3.5);
+  --landing-gutter: var(--size-5);
+  --rhythm-tight: var(--size-2); /* A label and its value. */
+  --rhythm-text: var(--size-4); /* Text within one group. */
+  --rhythm-group: var(--size-8); /* Groups within one section. */
+  --rhythm-section: var(--size-12); /* Sections of the page. */
+  --pane-inset: var(--size-4);
 }
 @media (min-width: 700px) {
-  .landing-section {
-    padding-block: var(--size-16);
+  html:not(.fixed-page) {
+    --rhythm-section: var(--size-24);
+    --pane-inset: var(--size-6);
   }
 }
-.hero {
+@media (min-width: 1000px) {
+  html:not(.fixed-page) {
+    --landing-gutter: var(--size-10);
+  }
+}
+html:not(.fixed-page) .site-header {
+  border-bottom: var(--border-default) solid
+    color-mix(in oklab, var(--crt-frame) 35%, var(--crt-bg));
+}
+html:not(.fixed-page) .site-header-bar {
+  max-width: var(--landing-width);
+  margin-inline: auto;
+  padding: var(--size-3) var(--landing-gutter);
+}
+html:not(.fixed-page) .stripes {
+  display: none;
+}
+.landing {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--size-5);
-  text-align: center;
+  gap: var(--rhythm-section);
+  max-width: var(--landing-width);
+  margin-inline: auto;
+  padding: var(--rhythm-group) var(--landing-gutter) var(--rhythm-section);
+  line-height: var(--size-6);
+}
+.landing .pane {
+  padding: var(--rhythm-group) var(--pane-inset);
+  box-shadow: none;
 }
 /* The header's wordmark does this job on phones, where the ASCII art can't fit. */
-.hero-logo {
+.masthead {
   display: none;
+}
+@media (min-width: 700px) {
+  .masthead {
+    display: block;
+    /* The logo and hero read as one section. */
+    margin-bottom: calc(var(--rhythm-group) - var(--rhythm-section));
+  }
+}
+.hero-logo {
+  width: fit-content;
   font-weight: 700;
   white-space: pre;
-  text-align: left;
   /* 172 columns of 0.6em, fit to the width with room for a scrollbar. */
-  font-size: min(calc((100vw - var(--size-8)) / 108), 11px);
+  font-size: min(calc((100vw - var(--size-24)) / 108), 12px);
   line-height: 1.143;
   color: transparent;
   background: var(--crt-spectrum);
   background-clip: text;
-  filter: drop-shadow(0 0 var(--size-1) color-mix(in oklab, var(--crt-pink) 45%, transparent));
 }
-@media (min-width: 700px) {
-  .hero-logo {
-    display: block;
-  }
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--rhythm-group) var(--size-10);
 }
-.hero-badge {
-  padding: var(--size-0-5) var(--size-2-5);
-  border: var(--border-default) solid var(--crt-frame);
-  color: var(--crt-path);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-decoration: none;
-  text-transform: uppercase;
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 .hero-title {
-  max-width: 22ch;
-  margin: 0;
+  margin: 0 0 var(--rhythm-text);
   font-size: 2rem;
-  line-height: 1.15;
+  line-height: var(--size-8);
+  letter-spacing: -0.03em;
   text-wrap: balance;
-  text-shadow: var(--size-1) var(--size-1) 0 var(--crt-shadow);
 }
 .hero-copy {
-  max-width: 60ch;
-  margin: 0;
+  max-width: 48ch;
+  margin: 0 0 var(--rhythm-group);
   color: var(--crt-dim);
   font-size: 1.1rem;
 }
+/* As tall as the text beside it, with this as the least on any screen. */
+.landing .hero-media {
+  min-height: calc(var(--size-96) + var(--size-40));
+  padding: var(--size-6) var(--rhythm-text) var(--rhythm-text);
+}
+/* Size containment stops a long file or issue list growing the frame, so they scroll. */
+.live-check {
+  contain: size;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rhythm-text);
+}
+/* One scrolling row on narrow screens, so it can't squeeze out the editor. */
+.live-samples {
+  flex: none;
+  display: flex;
+  gap: var(--size-1);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.live-sample {
+  flex: none;
+  min-height: var(--size-8);
+  padding: var(--size-1) var(--size-2-5);
+  border: 0;
+  background: transparent;
+  color: var(--crt-text);
+  font: inherit;
+  cursor: pointer;
+}
+.live-sample:hover {
+  background: var(--crt-path);
+  color: var(--crt-ink);
+}
+.live-sample[data-pressed] {
+  background: var(--crt-highlight);
+  color: var(--crt-ink);
+  font-weight: 700;
+}
+.live-sample-paste {
+  margin-left: auto;
+}
+/* Back under the scanlines and the sticky header, which it would otherwise scroll over. */
+.live-check .editor {
+  z-index: auto;
+  flex: 3;
+}
+.editor-input::placeholder {
+  color: var(--crt-dim);
+}
+.live-results {
+  flex: 2;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.live-results .status {
+  flex: none;
+  margin-bottom: var(--rhythm-tight);
+}
+.live-results .verdict {
+  box-shadow: none;
+}
+.live-empty {
+  margin: 0;
+  color: var(--crt-dim);
+}
 @media (min-width: 700px) {
   .hero-title {
-    font-size: 3rem;
+    font-size: 3.25rem;
+    line-height: var(--size-12);
+  }
+}
+@media (min-width: 1000px) {
+  .hero {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 .actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: var(--size-3);
+  margin-bottom: var(--rhythm-group);
 }
-/* Links dressed as the flat cels the playground uses for buttons. */
 .button {
   display: inline-flex;
   align-items: center;
@@ -929,7 +1043,6 @@ p.status-error {
   color: var(--crt-text);
   font-weight: 700;
   text-decoration: none;
-  box-shadow: var(--size-1) var(--size-1) 0 var(--crt-shadow);
 }
 .button-primary {
   border-color: var(--crt-path);
@@ -941,27 +1054,14 @@ p.status-error {
   background: var(--crt-pass);
   color: var(--crt-ink);
 }
-.button:active {
-  box-shadow: none;
-  transform: translate(var(--size-1), var(--size-1));
-}
-.command {
-  width: 100%;
-  max-width: calc(var(--size-96) + var(--size-64));
-  text-align: left;
-}
-.command-tabs {
-  display: flex;
-  gap: var(--size-1);
-  border-bottom: var(--border-default) solid var(--crt-frame);
-}
 .command-line {
   display: flex;
   align-items: center;
   gap: var(--size-3);
+  width: 100%;
+  margin-bottom: var(--rhythm-group);
   padding: var(--size-2) var(--size-3);
   border: var(--border-default) solid var(--crt-frame);
-  border-top: 0;
   background: var(--crt-well);
 }
 .command-text {
@@ -981,132 +1081,78 @@ p.status-error {
   font: inherit;
   font-size: 0.85rem;
   cursor: pointer;
-  box-shadow: var(--size-0-5) var(--size-0-5) 0 var(--crt-shadow);
 }
 .command-copy:hover {
   border-color: var(--crt-path);
   background: var(--crt-path);
   color: var(--crt-ink);
 }
-.command-copy:active {
-  box-shadow: none;
-  transform: translate(var(--size-0-5), var(--size-0-5));
-}
-/* Marks a graphic still to come: a faint crossed box, labeled with the size to make it. */
-.placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--size-1);
-  width: 100%;
-  margin-inline: auto;
-  padding: var(--size-2);
-  border: var(--border-default) dashed color-mix(in oklab, var(--crt-frame) 50%, transparent);
-  background:
-    linear-gradient(
-      to top right,
-      transparent calc(50% - 1px),
-      color-mix(in oklab, var(--crt-frame) 18%, transparent) 50%,
-      transparent calc(50% + 1px)
-    ),
-    linear-gradient(
-      to bottom right,
-      transparent calc(50% - 1px),
-      color-mix(in oklab, var(--crt-frame) 18%, transparent) 50%,
-      transparent calc(50% + 1px)
-    ),
-    color-mix(in oklab, var(--crt-frame) 8%, transparent);
-  text-align: center;
-}
-.placeholder-label {
-  color: var(--crt-dim);
-  font-size: 0.85rem;
-}
-.placeholder-size {
-  color: var(--crt-path);
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-.stats-section {
-  padding-block: 0;
-}
+/* Ends level with the bottom of the frame beside it. */
 .stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--size-px);
-  margin: 0;
-  border: var(--border-default) solid var(--crt-frame);
-  background: var(--crt-frame);
-  box-shadow: var(--size-1) var(--size-1) 0 var(--crt-shadow);
-}
-@media (min-width: 700px) {
-  .stats {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
+  gap: var(--size-4);
+  align-self: stretch;
+  margin: auto 0 0;
 }
 .stat {
   display: flex;
   flex-direction: column-reverse;
   justify-content: flex-end;
-  gap: var(--size-1);
-  padding: var(--size-4);
-  background: var(--crt-bg);
-  text-align: center;
+  gap: var(--rhythm-tight);
+  padding: var(--rhythm-text);
+  background: color-mix(in oklab, var(--crt-frame) 8%, transparent);
 }
 .stat dt {
   color: var(--crt-dim);
   font-size: 0.85rem;
+  line-height: var(--size-5);
 }
 .stat dd {
   margin: 0;
   color: var(--crt-path);
   font-size: 1.75rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: var(--size-8);
 }
 .section-heading {
-  max-width: 70ch;
-  margin: 0 auto var(--size-8);
+  margin-bottom: var(--rhythm-group);
   text-align: center;
 }
-.section-heading h2,
-.closing-content h2 {
-  margin: 0 0 var(--size-2);
-  font-size: 1.5rem;
-  line-height: 1.2;
+.section-heading h2 {
+  margin: 0 0 var(--rhythm-text);
+  font-size: 1.75rem;
+  line-height: var(--size-8);
+  letter-spacing: -0.02em;
   text-wrap: balance;
-  text-shadow: var(--size-0-5) var(--size-0-5) 0 var(--crt-shadow);
 }
 .section-heading p {
-  margin: 0;
+  max-width: 60ch;
+  margin: 0 auto;
   color: var(--crt-dim);
 }
 @media (min-width: 700px) {
-  .section-heading h2,
-  .closing-content h2 {
-    font-size: 2rem;
+  .section-heading h2 {
+    font-size: 2.5rem;
+    line-height: var(--size-10);
   }
 }
 .feature-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--size-6);
+  gap: var(--rhythm-group);
 }
-@media (min-width: 700px) {
+@media (min-width: 1000px) {
   .feature-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 .feature {
-  gap: var(--size-3);
-  padding-top: var(--size-5);
+  gap: var(--rhythm-text);
+  min-width: 0;
 }
 .feature > p {
   margin: 0;
-}
-.feature > :last-child {
-  margin-top: auto;
 }
 .feature strong {
   color: var(--crt-path);
@@ -1117,75 +1163,12 @@ p.status-error {
   overflow-wrap: anywhere;
 }
 .code-block {
-  margin: 0;
-  padding: var(--size-3);
+  margin: auto 0 0;
+  padding: var(--rhythm-text);
   overflow-x: auto;
-  border-left: var(--border-4) solid var(--crt-shadow);
   background: var(--crt-well);
   color: var(--digital-blue-300);
   font-family: var(--crt-code-font);
   font-size: 13px;
-  line-height: 1.6;
-}
-.open-source .section-heading {
-  margin-bottom: var(--size-5);
-}
-/* Text over the background graphic, so the graphic can crop on narrow screens. */
-.closing {
-  display: grid;
-  min-height: var(--size-80);
-}
-.closing > * {
-  grid-area: 1 / 1;
-}
-.closing .placeholder {
-  height: 100%;
-  justify-content: flex-end;
-  align-items: flex-end;
-}
-.closing-content {
-  align-self: center;
-  justify-self: center;
-  padding: var(--size-6) var(--size-4);
-  text-align: center;
-}
-.closing-content p {
-  margin: 0 0 var(--size-5);
-  color: var(--crt-dim);
-}
-.site-footer-body {
-  max-width: calc(var(--size-96) * 3 + var(--size-12));
-  margin-inline: auto;
-  padding: var(--size-8) var(--size-4);
-}
-.footer-columns {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--size-6);
-}
-@media (min-width: 700px) {
-  .footer-columns {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-.footer-title {
-  margin: 0 0 var(--size-2);
-  color: var(--crt-path);
-  font-size: 0.85rem;
-  text-transform: uppercase;
-}
-.footer-links li {
-  margin-bottom: var(--size-1);
-}
-.footer-copyright {
-  margin: var(--size-8) 0 0;
-  color: var(--crt-dim);
-  font-size: 0.85rem;
-}
-@media (pointer: coarse) {
-  .footer-links a {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--size-11);
-  }
+  line-height: var(--size-5);
 }

@@ -74,12 +74,12 @@ interface SiteHeaderProps {
 /** The menu bar shared by every page. */
 export function SiteHeader({ current }: SiteHeaderProps) {
   const primary = [
-    { label: 'Docs', href: LINKS.docs },
     {
       label: 'Playground',
       href: LINKS.playground,
       ...(current === 'playground' ? { 'aria-current': 'page' as const } : {}),
     },
+    { label: 'Docs', href: LINKS.docs },
     { label: 'API', href: LINKS.api },
   ];
 
@@ -93,7 +93,7 @@ export function SiteHeader({ current }: SiteHeaderProps) {
         >
           Open Design Tokens
         </a>
-        <nav aria-label="Main">
+        <nav className="site-nav-area" aria-label="Main">
           <ul className="site-nav">
             {primary.map(({ label, ...link }) => (
               <li key={label} className="nav-wide">

@@ -24,7 +24,7 @@ describe('landing page', () => {
 
   it('sends the hero to the docs and the playground', () => {
     render(<LandingPage />);
-    const hero = within(document.querySelector('.hero') as HTMLElement);
+    const hero = within(screen.getByRole('main'));
     expect(hero.getByRole('link', { name: 'Try the playground' }).getAttribute('href')).toBe(
       '/playground/',
     );
@@ -33,11 +33,17 @@ describe('landing page', () => {
     );
   });
 
-  it('switches the command with the package runner tab', () => {
+  it('shows the stats, the two questions, and the four highlights', () => {
     render(<LandingPage />);
-    expect(screen.getByText('npx open-design-tokens tokens.json')).toBeTruthy();
-    fireEvent.click(screen.getByRole('tab', { name: 'pnpm' }));
-    expect(screen.getByText('pnpm dlx open-design-tokens tokens.json')).toBeTruthy();
+    expect(screen.getByText('runtime dependencies')).toBeTruthy();
+    const titles = screen.getAllByRole('heading', { level: 2 }).map((title) => title.textContent);
+    expect(titles).toEqual([
+      'Two questions, one toolkit',
+      'Designers and developers',
+      'AI agents',
+      'Safe on untrusted files',
+      'Typed and portable',
+    ]);
   });
 
   it('copies the command', async () => {
@@ -59,13 +65,6 @@ describe('landing page', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
     });
     expect(screen.getByRole('button', { name: 'Copy' })).toBeTruthy();
-  });
-
-  it('labels each placeholder with the size to make its graphic', () => {
-    render(<LandingPage />);
-    const hero = screen.getByRole('img', { name: /Hero graphic, 1168 by 480 pixels/ });
-    expect(hero.textContent).toContain('1168 × 480');
-    expect(hero.style.maxWidth).toBe('1168px');
   });
 });
 
