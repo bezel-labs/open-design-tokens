@@ -9,6 +9,7 @@
   "tsconfig": "packages/open-design-tokens/tsconfig.json",
   "out": "apps/demo/dist/api",
   "readme": "README.md",
+  "headings": { "readme": false },
   "excludeInternal": true,
   "excludePrivate": true,
   "treatWarningsAsErrors": false,
