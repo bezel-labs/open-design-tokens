@@ -3,7 +3,7 @@ title: Linter API
 description: Exports of open-design-tokens/linter.
 ---
 
-- `createLinter(config?, options?)` resolves the config once and returns a `Linter`. `options.messages` overrides the validator's message wording by code, as with `validateDtcg`. Unknown rules or presets, bad severities, and malformed options throw a `RangeError` here, not on the first document. With no config it only validates.
+- `createLinter(config?, options?)` resolves the config once and returns a `Linter`. `options.messages` overrides message wording by code: validator codes, as with `validateDtcg`, and built-in rule codes (`RuleMessageCatalog`, each entry a function of that code's `RuleIssueMeta`). Rule overrides are escaped like built-in rule messages. Unknown rules or presets, bad severities, and malformed options throw a `RangeError` here, not on the first document. With no config it only validates.
 - `linter.lint(input)` validates against the spec, then runs the configured rules. Accepts a JSON string, an object, or a prepared document. Never throws on document input.
 - `linter.config` is the resolved configuration: the rules that run, each with its severity and merged options. Read limits back from it instead of repeating them, for example `linter.config.rules.find((r) => r.rule.id === 'token-name-length')?.options`.
 - `defineConfig(config)` is a typed identity helper for config files.

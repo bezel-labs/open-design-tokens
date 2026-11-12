@@ -34,6 +34,8 @@ export type {
   ReferenceGraph,
   ResolvedConfig,
   ResolvedRule,
+  RuleIssueMeta,
+  RuleMessageCatalog,
   RuleMeta,
   RuleReport,
   RuleSetting,

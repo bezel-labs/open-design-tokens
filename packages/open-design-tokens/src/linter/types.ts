@@ -103,10 +103,48 @@ export interface ResolvedConfig {
   rules: readonly ResolvedRule[];
 }
 
+/** The `meta` each built-in rule code reports, keyed by its full code. */
+export interface RuleIssueMeta {
+  'token-name-length.too-short': { length: number; min: number };
+  'token-name-length.too-long': { length: number; max: number };
+  'group-name-length.too-short': { length: number; min: number };
+  'group-name-length.too-long': { length: number; max: number };
+  'description-length.too-short': { length: number; min: number };
+  'description-length.too-long': { length: number; max: number };
+  'naming-convention.mismatch': { name: string; expected: string };
+  'extensions-allowed-vendors.unknown-vendor': { key: string; allowed: string[] };
+  'extensions-schema.not-object': Record<string, never>;
+  'extensions-schema.missing': { field: string };
+  'extensions-schema.unknown-field': { field: string };
+  'extensions-schema.wrong-type': { expected?: string; actual?: string };
+  'extensions-schema.pattern': Record<string, never>;
+  'extensions-schema.too-short': Record<string, never>;
+  'extensions-schema.too-long': Record<string, never>;
+  'extensions-schema.too-small': Record<string, never>;
+  'extensions-schema.too-large': Record<string, never>;
+  'extensions-schema.too-few': Record<string, never>;
+  'extensions-schema.too-many': Record<string, never>;
+  'extensions-schema.invalid': Record<string, never>;
+  'require-description.missing': Record<string, never>;
+  'require-explicit-type.inherited': { inheritedType: string | undefined };
+  'no-empty-groups.empty': Record<string, never>;
+  'max-alias-depth.exceeded': { hops: number; max: number; chain: string[] };
+  'no-unused-tokens.unreferenced': Record<string, never>;
+  'no-deprecated-alias.target': { target: string };
+}
+
+/** Message wording for built-in rule codes, each a function of that code's `meta`. */
+export type RuleMessageCatalog = {
+  [C in keyof RuleIssueMeta]: (meta: RuleIssueMeta[C]) => string;
+};
+
 /** Presentation options for a linter; none of them change what is reported. */
 export interface LinterOptions {
-  /** Validator message wording by issue code; see `ValidateOptions.messages`. */
-  messages?: Partial<MessageCatalog>;
+  /**
+   * Message wording by issue code, for validator codes (see `ValidateOptions.messages`) and
+   * built-in rule codes. Codes not listed keep the built-in text.
+   */
+  messages?: Partial<MessageCatalog & RuleMessageCatalog>;
 }
 
 /**
