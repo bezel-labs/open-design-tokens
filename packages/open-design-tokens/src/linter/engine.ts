@@ -74,13 +74,20 @@ export function buildReferenceGraph(doc: PreparedDocument, resolver: Resolver): 
 export function createLinter(config: LintConfig = {}, options: LinterOptions = {}): Linter {
   const resolved = resolveConfig(config);
   const validateOptions: ValidateOptions = options.messages ? { messages: options.messages } : {};
-  return { lint: (input) => lint(input, resolved, validateOptions), config: resolved };
+  const ruleMessages = (options.messages ?? {}) as RuleMessages;
+  return {
+    lint: (input) => lint(input, resolved, validateOptions, ruleMessages),
+    config: resolved,
+  };
 }
+
+type RuleMessages = Partial<Record<string, (meta: Record<string, unknown>) => string>>;
 
 function lint(
   input: unknown,
   resolved: ResolvedConfig,
   validateOptions: ValidateOptions,
+  ruleMessages: RuleMessages,
 ): LintResult {
   const doc = prepareDocument(input);
   const validation = validateDtcg(doc, validateOptions);
@@ -116,10 +123,12 @@ function lint(
         const path = Array.isArray(r.path)
           ? toIssuePath(r.path as readonly string[])
           : (r.path as LintIssue['path']);
+        const code = r.code ? `${rule.id}.${r.code}` : rule.id;
+        const override = ruleMessages[code];
         const issue: LintIssue = {
           ruleId: rule.id,
-          code: r.code ? `${rule.id}.${r.code}` : rule.id,
-          message: sanitize(r.message),
+          code,
+          message: sanitize(override ? override(r.meta ?? {}) : r.message),
           severity,
           path,
         };

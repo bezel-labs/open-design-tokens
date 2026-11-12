@@ -86,6 +86,37 @@ describe('lint engine', () => {
     expect(r.validation.errors[0]?.code).toBe('number.value.not-number');
   });
 
+  it('applies message overrides to rule codes, with the rule meta', () => {
+    const linter = createLinter(
+      { rules: { 'naming-convention': ['error', { groups: '^[a-z]+$' }] } },
+      { messages: { 'naming-convention.mismatch': (m) => `Rename "${m.name}".` } },
+    );
+    const r = linter.lint({ 'Bad Name': { a: { $type: 'number', $value: 1 } } });
+    expect(r.errors.map((i) => [i.code, i.message])).toEqual([
+      ['naming-convention.mismatch', 'Rename "Bad Name".'],
+    ]);
+    expect(r.errors[0]?.meta).toEqual({ name: 'Bad Name', expected: 'pattern ^[a-z]+$' });
+  });
+
+  it('keeps built-in wording for rule codes without an override', () => {
+    const linter = createLinter(
+      { rules: { 'group-name-length': ['error', { max: 2 }] } },
+      { messages: { 'naming-convention.mismatch': () => 'unused' } },
+    );
+    const r = linter.lint({ abc: { a: { $type: 'number', $value: 1 } } });
+    expect(r.errors[0]?.message).toBe('Group name "abc" is 3 characters; maximum is 2.');
+  });
+
+  it('escapes control characters in overridden rule messages', () => {
+    const linter = createLinter(
+      { rules: { 'naming-convention': ['error', { groups: 'kebab' }] } },
+      { messages: { 'naming-convention.mismatch': (m) => m.name } },
+    );
+    const r = linter.lint({ 'a\u001b[31m': { b: { $type: 'number', $value: 1 } } });
+    expect(r.errors[0]?.message).not.toContain('\u001b');
+    expect(r.errors[0]?.message).toContain('\\u001b');
+  });
+
   it('presets apply first and explicit rules override', () => {
     const resolved = resolveConfig({
       extends: ['recommended'],

@@ -47,4 +47,4 @@ for (const issue of result.issues) {
 }
 ```
 
-To change the wording of a message while keeping everything else, pass `messages` to `validateDtcg` or `createLinter`: a partial catalog keyed by code, each entry a function of that code's typed `meta`. Codes you do not list keep the built-in English text.
+To change the wording of a message while keeping everything else, pass `messages` to `validateDtcg` or `createLinter`: a partial catalog keyed by code, each entry a function of that code's typed `meta`. `createLinter` also accepts lint rule codes such as `naming-convention.mismatch`, typed by `RuleMessageCatalog`. Codes you do not list keep the built-in English text. An override receives raw values in `meta`, so pass them through `formatValue` when quoting them.
