@@ -1,0 +1,13 @@
+{
+  "space": {
+    "$type": "number",
+    "none": {
+      "$value": 0,
+      "$extensions": { "com.example.app": { "exportName": ["space-none", "space-0"] } }
+    },
+    "px": {
+      "$value": 1,
+      "$extensions": { "com.example.app": { "exportName": ["space-px"] } }
+    }
+  }
+}

@@ -58,6 +58,11 @@ export interface FieldSpec {
   items?: 'string' | 'number' | 'boolean' | 'object';
   /** Custom check; return a message to report. */
   validate?(value: unknown): string | undefined;
+  /**
+   * For strings and arrays of strings: each value may appear only once across the document,
+   * in this field of this vendor block.
+   */
+  unique?: boolean;
 }
 
 /** A vendor check: a declarative schema, or a function returning reports. */
@@ -152,6 +157,26 @@ export const extensionsSchema = defineRule<ExtensionsSchemaOptions>({
         : 'vendors must be an object keyed by vendor',
   },
   create(ctx) {
+    const uses = new Map<
+      string,
+      { field: string; value: string; owner: string; path: string[] }[]
+    >();
+    const recordUnique = (
+      vendor: string,
+      field: string,
+      value: unknown,
+      owner: readonly string[],
+      path: readonly string[],
+    ) => {
+      const values = Array.isArray(value) ? value : [value];
+      for (const v of values) {
+        if (typeof v !== 'string') continue;
+        const key = JSON.stringify([vendor, field, v]);
+        const list = uses.get(key) ?? [];
+        list.push({ field, value: v, owner: owner.join('.'), path: [...path] });
+        uses.set(key, list);
+      }
+    };
     const visit = (node: { path: readonly string[]; raw: Record<string, unknown> }) => {
       const ext = node.raw.$extensions;
       if (!isPlainObject(ext)) return;
@@ -183,6 +208,7 @@ export const extensionsSchema = defineRule<ExtensionsSchemaOptions>({
             continue;
           }
           checkField(value[field], spec, [...base, field], ctx.report);
+          if (spec.unique) recordUnique(vendor, field, value[field], node.path, [...base, field]);
         }
         if (!check.additionalFields) {
           for (const key of Object.keys(value)) {
@@ -197,6 +223,20 @@ export const extensionsSchema = defineRule<ExtensionsSchemaOptions>({
         }
       }
     };
-    return { token: visit, group: visit };
+    const reportDuplicates = () => {
+      for (const list of uses.values()) {
+        if (list.length < 2) continue;
+        for (const use of list) {
+          const others = list.filter((other) => other !== use).map((other) => other.owner);
+          ctx.report({
+            code: 'duplicate',
+            message: `${formatValue(use.field)} value ${formatValue(use.value)} is also used at ${others.map((o) => formatValue(o)).join(', ')}.`,
+            path: use.path,
+            meta: { field: use.field, value: use.value, paths: others },
+          });
+        }
+      }
+    };
+    return { token: visit, group: visit, document: reportDuplicates };
   },
 });

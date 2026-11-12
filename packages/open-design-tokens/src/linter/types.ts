@@ -116,6 +116,7 @@ export interface RuleIssueMeta {
   'extensions-schema.not-object': Record<string, never>;
   'extensions-schema.missing': { field: string };
   'extensions-schema.unknown-field': { field: string };
+  'extensions-schema.duplicate': { field: string; value: string; paths: string[] };
   'extensions-schema.wrong-type': { expected?: string; actual?: string };
   'extensions-schema.pattern': Record<string, never>;
   'extensions-schema.too-short': Record<string, never>;
