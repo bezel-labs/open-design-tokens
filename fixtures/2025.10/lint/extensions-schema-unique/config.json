@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "extensions-schema": [
+      "error",
+      {
+        "vendors": {
+          "com.example.app": {
+            "fields": { "exportName": { "type": "array", "items": "string", "unique": true } }
+          }
+        }
+      }
+    ]
+  }
+}

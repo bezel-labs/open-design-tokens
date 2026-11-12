@@ -49,7 +49,7 @@ Two rules cover `$extensions`. `extensions-allowed-vendors` restricts which vend
   vendors: {
     'com.example.app': {
       fields: {
-        exportName: { type: 'array', items: 'string', pattern: /^[a-z0-9-]+$/, min: 1 },
+        exportName: { type: 'array', items: 'string', pattern: /^[a-z0-9-]+$/, min: 1, unique: true },
         variantName: { type: 'string', min: 1, max: 64 },
       },
       additionalFields: false,
@@ -57,6 +57,8 @@ Two rules cover `$extensions`. `extensions-allowed-vendors` restricts which vend
   },
 }]
 ```
+
+`unique: true` on a string or string-array field means each value may appear only once in the whole document. A repeated value is reported as `extensions-schema.duplicate` on every token that uses it, with the other tokens' paths in `meta.paths`.
 
 A vendor entry may also be a function `(value, path) => RuleReport[]` for checks a schema cannot express.
 

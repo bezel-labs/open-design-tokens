@@ -1,0 +1,12 @@
+{
+  "issues": [
+    {
+      "code": "extensions-schema.duplicate",
+      "pointer": "/space/none/$extensions/com.example.app/exportName"
+    },
+    {
+      "code": "extensions-schema.duplicate",
+      "pointer": "/space/px/$extensions/com.example.app/exportName"
+    }
+  ]
+}

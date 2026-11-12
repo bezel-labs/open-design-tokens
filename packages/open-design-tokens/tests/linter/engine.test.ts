@@ -117,6 +117,48 @@ describe('lint engine', () => {
     expect(r.errors[0]?.message).toContain('\\u001b');
   });
 
+  it('reports a unique extension field value on every token that uses it', () => {
+    const linter = createLinter(
+      {
+        rules: {
+          'extensions-schema': [
+            'error',
+            {
+              vendors: {
+                'com.example.app': {
+                  fields: { exportName: { type: 'array', items: 'string', unique: true } },
+                },
+              },
+            },
+          ],
+        },
+      },
+      {
+        messages: {
+          'extensions-schema.duplicate': (m) => `${m.value} is taken by ${m.paths.join(', ')}.`,
+        },
+      },
+    );
+    const named = (names: string[]) => ({
+      $type: 'number',
+      $value: 1,
+      $extensions: { 'com.example.app': { exportName: names } },
+    });
+    const r = linter.lint({ a: named(['x']), b: named(['x']), c: named(['y']) });
+    expect(r.errors.map((i) => [i.path.dot, i.message, i.meta])).toEqual([
+      [
+        'a.$extensions.com.example.app.exportName',
+        'x is taken by b.',
+        { field: 'exportName', value: 'x', paths: ['b'] },
+      ],
+      [
+        'b.$extensions.com.example.app.exportName',
+        'x is taken by a.',
+        { field: 'exportName', value: 'x', paths: ['a'] },
+      ],
+    ]);
+  });
+
   it('presets apply first and explicit rules override', () => {
     const resolved = resolveConfig({
       extends: ['recommended'],
