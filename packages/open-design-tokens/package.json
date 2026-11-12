@@ -1,6 +1,6 @@
 {
   "name": "open-design-tokens",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "TypeScript toolkit for validating and linting DTCG design tokens.",
   "type": "module",
   "license": "MIT",
