@@ -1,5 +1,11 @@
 # open-design-tokens
 
+## 0.6.0
+
+### Minor Changes
+
+- [#50](https://github.com/bezel-labs/open-design-tokens/pull/50) [`d1adabd`](https://github.com/bezel-labs/open-design-tokens/commit/d1adabdeee368c821182be944517cb259d1bd131) Thanks [@mr-robot-o](https://github.com/mr-robot-o)! - `createLinter`'s `messages` option now rewords lint rule messages as well as validator messages. Rule codes such as `naming-convention.mismatch` are typed by the new `RuleMessageCatalog` and `RuleIssueMeta` exports.
+
 ## 0.5.0
 
 ### Minor Changes
