@@ -1,5 +1,11 @@
 # open-design-tokens
 
+## 0.7.0
+
+### Minor Changes
+
+- [#52](https://github.com/bezel-labs/open-design-tokens/pull/52) [`7169bc8`](https://github.com/bezel-labs/open-design-tokens/commit/7169bc87eee96d358d5d58c67500b61402fc3a2f) Thanks [@mr-robot-o](https://github.com/mr-robot-o)! - `extensions-schema` fields accept `unique: true`. Each string value (or each item of a string array) may then appear only once across the document, and a repeat is reported as `extensions-schema.duplicate` on every token that uses it.
+
 ## 0.6.0
 
 ### Minor Changes
