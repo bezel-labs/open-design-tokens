@@ -103,8 +103,6 @@ export interface ResolvedConfig {
   rules: readonly ResolvedRule[];
 }
 
-type NoMeta = Record<string, never>;
-
 /** The `meta` each built-in rule code reports, keyed by its full code. */
 export interface RuleIssueMeta {
   'token-name-length.too-short': { length: number; min: number };
@@ -115,23 +113,23 @@ export interface RuleIssueMeta {
   'description-length.too-long': { length: number; max: number };
   'naming-convention.mismatch': { name: string; expected: string };
   'extensions-allowed-vendors.unknown-vendor': { key: string; allowed: string[] };
-  'extensions-schema.not-object': NoMeta;
+  'extensions-schema.not-object': Record<string, never>;
   'extensions-schema.missing': { field: string };
   'extensions-schema.unknown-field': { field: string };
   'extensions-schema.wrong-type': { expected?: string; actual?: string };
-  'extensions-schema.pattern': NoMeta;
-  'extensions-schema.too-short': NoMeta;
-  'extensions-schema.too-long': NoMeta;
-  'extensions-schema.too-small': NoMeta;
-  'extensions-schema.too-large': NoMeta;
-  'extensions-schema.too-few': NoMeta;
-  'extensions-schema.too-many': NoMeta;
-  'extensions-schema.invalid': NoMeta;
-  'require-description.missing': NoMeta;
+  'extensions-schema.pattern': Record<string, never>;
+  'extensions-schema.too-short': Record<string, never>;
+  'extensions-schema.too-long': Record<string, never>;
+  'extensions-schema.too-small': Record<string, never>;
+  'extensions-schema.too-large': Record<string, never>;
+  'extensions-schema.too-few': Record<string, never>;
+  'extensions-schema.too-many': Record<string, never>;
+  'extensions-schema.invalid': Record<string, never>;
+  'require-description.missing': Record<string, never>;
   'require-explicit-type.inherited': { inheritedType: string | undefined };
-  'no-empty-groups.empty': NoMeta;
+  'no-empty-groups.empty': Record<string, never>;
   'max-alias-depth.exceeded': { hops: number; max: number; chain: string[] };
-  'no-unused-tokens.unreferenced': NoMeta;
+  'no-unused-tokens.unreferenced': Record<string, never>;
   'no-deprecated-alias.target': { target: string };
 }
 
